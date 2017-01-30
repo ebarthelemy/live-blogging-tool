@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,300italic,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="https://cdn.flybase.io/flybase.js?latest=1"></script>
+
+  <title>Live Blogging Tool powered by Flybase, Twilio and Node.js</title>
+</head>
+<body>
+  <div class='container'>
+    <div class="row">
+      <div class="col-md-4">
+          <div id="postsDiv"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  $(function(){
+    var postsRef = new Flybase("<%= flybaseApiKey %>", "<%= flybaseAppName %>", "posts");
+    postsRef.once('value', function(data) {
+      console.log('data', data);
+      console.log( "we found " + data.count() + " posts");
+      data.forEach(function(post) {
+        displayPost(post.value());
+      });
+    });
+    postsRef.on('added', function(data) {
+      var post = data.value();
+      console.log('post', post);
+      if (post) {
+        displayPost(post);
+      }
+    });
+    function displayPost(post) {
+      $('<div/>')
+        .attr("id",post._id)
+        .text(post.textMessage)
+        .appendTo( $('#postsDiv') );
+      $('#postsDiv')[0].scrollTop = $('#postsDiv')[0].scrollHeight;
+    }
+  });
+  </script>
+</body>
+</html>
